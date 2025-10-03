@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akros | Prove Yourself or Step Out.</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Anton for aggressive headings, Inter for clean body text -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Lottie Player for dynamic animations -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <style>
+        /* Define Akros Color Palette and Fonts */
+        :root {
+            --color-bg: #000000; /* Pure Black */
+            --color-fg: #FFFFFF; /* Pure White */
+            --color-accent: #00C2FF; /* Blue Accent (Glowing) */
+            --color-secondary: #2D2D2D; /* Steel Grey */
+            --color-muted-text: #6A6A6A; /* Muted Text */
+            --color-dark-overlay: rgba(10, 10, 10, 0.6); /* Dark Overlay for text clarity */
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        /* Base Body Styles */
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* --- BACKGROUND LAYERS --- */
+        #interactive-background { z-index: 1; }
+        .content-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-dark-overlay); 
+            z-index: 2;
+        }
+        
+        /* Faint Grain/Static Overlay (for raw, gritty texture) */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3; /* Above overlay, below main content */
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            background-blend-mode: overlay;
+        }
+
+        /* --- SCROLL PROGRESS BAR --- */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background-color: var(--color-accent);
+            z-index: 50;
+        }
+        
+        /* --- TYPOGRAPHY & HEADINGS --- */
+        h1, h2 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+        .body-text {
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+        .copy-emphasis {
+            color: var(--color-accent);
+            font-weight: 700;
+        }
+        .glitch-word {
+            text-shadow: 0 0 10px rgba(0, 194, 255, 0.5);
+        }
+
+        /* --- BUTTONS --- */
+        .akros-btn {
+            height: 52px; 
+            border-radius: 9999px; /* Pill Shape */
+            background-color: var(--color-accent);
+            color: var(--color-bg);
+            font-weight: 700;
+            font-family: var(--font-heading);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 0 15px rgba(0, 194, 255, 0.4);
+        }
+        .akros-btn:hover {
+            box-shadow: 0 0 24px rgba(0, 194, 255, 0.8);
+            transform: scale(1.03);
+        }
+        .akros-btn-secondary {
+             background-color: var(--color-secondary);
+             color: var(--color-fg);
+             border: 2px solid var(--color-secondary);
+             box-shadow: none;
+        }
+        .akros-btn-secondary:hover {
+            background-color: var(--color-secondary);
+            border-color: var(--color-fg);
+            color: var(--color-fg);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* --- MANIFESTO SCROLL SECTION --- */
+        #manifesto-progress {
+            position: fixed;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+            margin: 10px 0;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .progress-dot.active {
+            background-color: var(--color-accent);
+            transform: scale(1.5);
+        }
+        .manifesto-line {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .manifesto-line.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .manifesto-line h1 {
+            font-size: 3rem; 
+        }
+        @media (min-width: 768px) {
+            .manifesto-line h1 {
+                font-size: 6rem; 
+            }
+        }
+        
+        /* --- MACRO CALCULATOR STYLES (Analyzer) --- */
+        .macro-input {
+            background-color: var(--color-bg);
+            border: 2px solid var(--color-secondary);
+            color: var(--color-fg);
+            padding: 12px 15px;
+            border-radius: 0;
+            font-family: var(--font-body);
+            flex-grow: 1;
+            transition: border-color 0.2s;
+        }
+        .macro-input:focus {
+            border-color: var(--color-accent);
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 194, 255, 0.3);
+        }
+        .macro-result-box {
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-accent);
+            border-radius: 0;
+            padding: 1rem 0.5rem; 
+            box-shadow: 0 0 5px rgba(0, 194, 255, 0.1);
+        }
+        .macro-value {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            color: var(--color-accent);
+            line-height: 1;
+        }
+        #calculator-terminal {
+            background-color: var(--color-secondary);
+            border: 3px solid var(--color-accent);
+            box-shadow: 0 0 40px rgba(0, 194, 255, 0.1);
+        }
+
+        /* Unit Toggle Switches */
+        .unit-switch button {
+            background-color: var(--color-secondary);
+            color: var(--color-muted-text);
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            font-family: var(--font-heading);
+            border: 1px solid var(--color-secondary);
+        }
+        .unit-switch button.active {
+            background-color: var(--color-accent);
+            color: var(--color-bg);
+            box-shadow: 0 0 8px rgba(0, 194, 255, 0.5) inset;
+            border-color: var(--color-accent);
+        }
+        .unit-switch button:first-child { border-radius: 4px 0 0 4px; }
+        .unit-switch button:last-child { border-radius: 0 4px 4px 0; }
+        
+        /* --- SVG Akros Sigil (Faint Background Logo) --- */
+        @keyframes rotate-sigil {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        #akros-sigil {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 60vw;
+            height: 60vw;
+            max-width: 800px;
+            max-height: 800px;
+            transform: translate(-50%, -50%);
+            opacity: 0.03; /* Extremely faint */
+            animation: rotate-sigil 180s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Respect Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            #akros-sigil { animation: none; }
+            .akros-btn:hover { box-shadow: none; transform: none; }
+            .manifesto-line { transition: opacity 0.5s ease-out; }
+        }
+
+    </style>
+    <!-- Tailwind Customization -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'akros-bg': 'var(--color-bg)',
+                        'akros-fg': 'var(--color-fg)',
+                        'akros-accent': 'var(--color-accent)',
+                        'akros-secondary': 'var(--color-secondary)',
+                    },
+                    spacing: {
+                        '12': '3rem',
+                        '16': '4rem',
+                        '20': '5rem',
+                        '24': '6rem',
+                        '32': '8rem', 
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="selection:bg-akros-accent selection:text-akros-bg">
+
+    <!-- INTERACTIVE AURORA CANVAS BACKGROUND (Restored) -->
+    <canvas id="interactive-background" class="fixed inset-0 w-full h-full z-1"></canvas>
+    <div class="content-overlay"></div>
+    
+    <!-- AKROS GHOST SIGIL -->
+    <svg id="akros-sigil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M 50 5 L 85 95 L 15 95 Z" stroke="var(--color-accent)" opacity="0.5"/>
+        <path d="M 50 15 L 77 85 L 23 85 Z" stroke="var(--color-fg)" opacity="0.3"/>
+        <path d="M 50 50 L 70 75 L 30 75 Z" stroke="var(--color-accent)" opacity="0.7"/>
+        <path d="M 50 25 L 67 65 L 33 65 Z" stroke="var(--color-fg)" opacity="0.2"/>
+    </svg>
+
+    <!-- SCROLL PROGRESS BAR -->
+    <div id="scroll-progress"></div>
+
+    <!-- MANIFESTO PROGRESS INDICATOR (Dots) -->
+    <div id="manifesto-progress" class="hidden md:block">
+        <!-- Dots generated by JS -->
+    </div>
+
+
+    <!-- MAIN CONTENT CONTAINER (Z-index 10) -->
+    <main class="relative z-10">
+        
+        <!-- Header/Navigation (Minimal) -->
+        <header class="flex justify-start py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto sticky top-0 bg-akros-bg/50 backdrop-blur-sm z-40">
+            <div class="text-3xl font-extrabold text-akros-accent tracking-widest font-heading">
+                AKROS
+            </div>
+        </header>
+
+        <!-- 1. SCROLL MANIFESTO HERO SECTION -->
+        <section id="manifesto-hero" class="relative">
+            <!-- Scroll Container for the 9 steps -->
+            <div id="manifesto-scroll-target" class="h-[900vh] relative">
+                <!-- Manifesto Lines (positioned absolutely for overlap) -->
+                <div class="absolute inset-0 max-w-4xl mx-auto px-4">
+                    <div class="manifesto-line" data-step="1">
+                        <h1 class="text-akros-fg uppercase">This app isn’t built for everybody.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="2">
+                        <h1 class="text-akros-fg uppercase">Most want easy.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="3">
+                        <h1 class="text-akros-fg uppercase">Most quit early.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="4">
+                        <h1 class="text-akros-accent uppercase glitch-word">AKROS IS NOT FOR MOST.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="5">
+                        <h1 class="text-akros-fg uppercase">It is for the disciplined.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="6">
+                        <h1 class="text-akros-fg uppercase">It is for the result obsessed.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="7">
+                        <h1 class="text-akros-accent uppercase glitch-word">ONLY THE DEDICATED FEW.</h1>
+                    </div>
+                    <div class="manifesto-line" data-step="8">
+                        <h1 class="text-akros-fg uppercase">If that is you, <span class="text-akros-accent">step in.</span></h1>
+                    </div>
+                    <div class="manifesto-line" data-step="9">
+                        <!-- Final step reveals the CTA buttons -->
+                        <div id="final-cta-container" class="flex flex-col items-center space-y-6 opacity-0 transition-opacity duration-700">
+                            <h1 class="text-akros-fg uppercase text-center mb-8">Prove Yourself.</h1>
+                            <a id="cta_primary" href="#the-analyzer" class="akros-btn text-xl uppercase px-12 lp_cta_step_in_click">
+                                Step In
+                            </a>
+                            <button id="cta_secondary" class="akros-btn akros-btn-secondary text-base uppercase px-8 lp_cta_step_out_click">
+                                Step Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. PROMISE STRIP -->
+        <section id="promise-strip" class="max-w-5xl mx-auto text-center py-20 border-t border-b border-akros-secondary scroll-reveal">
+            <h2 class="text-5xl text-akros-fg uppercase mb-4">
+                Stage-Ready Science.
+            </h2>
+            <p class="body-text text-akros-muted text-lg mb-8 max-w-2xl mx-auto">
+                Daily instructions. Weekly adjustments. Zero guesswork.
+            </p>
+            <div id="chips_row" class="flex justify-center space-x-4 mb-12">
+                <div class="px-4 py-2 text-base rounded-full bg-akros-accent/10 text-akros-accent border border-akros-accent">BULK</div>
+                <div class="px-4 py-2 text-base rounded-full bg-akros-accent/10 text-akros-accent border border-akros-accent">CUT</div>
+                <div class="px-4 py-2 text-base rounded-full bg-akros-accent/10 text-akros-accent border border-akros-accent">PEAK</div>
+            </div>
+             <a href="#the-analyzer" class="akros-btn text-xl uppercase px-12">
+                Begin Assessment
+            </a>
+        </section>
+
+        <!-- 3. THE ANALYZER (Macro Calculator) - HIGH-TECH TERMINAL -->
+        <hr class="border-akros-secondary opacity-20 my-32 max-w-xl mx-auto">
+        <section id="the-analyzer" class="py-12 max-w-5xl mx-auto px-4 scroll-reveal">
+            <h2 class="text-6xl font-heading text-akros-accent text-center mb-12 uppercase">
+                The Analyzer.
+            </h2>
+            <p class="body-text text-akros-fg text-center mb-12 max-w-2xl mx-auto">
+                Calculate your <span class="copy-emphasis">initial prescriptive dose</span>. Input your raw data; receive the immutable blueprint.
+            </p>
+
+            <div id="calculator-terminal" class="max-w-xl mx-auto p-8 space-y-8">
+                
+                <!-- Data Processing Visual (Lottie Restored) -->
+                <div class="border border-akros-secondary p-4 bg-akros-bg text-center">
+                    <p class="text-sm font-mono text-akros-accent mb-2">
+                        LIVE DATA PIPELINE // STATUS: <span id="status-text">AWAITING COMMENCEMENT</span>
+                    </p>
+                    <!-- Lottie container (Restored) -->
+                    <lottie-player id="lottie-data-flow" speed="1" loop autoplay></lottie-player>
+                </div>
+
+                <!-- Input Terminal -->
+                <form id="macro-calculator" class="space-y-6">
+                    <h3 class="text-xl font-heading text-akros-fg uppercase border-b border-akros-secondary pb-2">INPUT DATA <span class="text-akros-accent font-mono">>></span></h3>
+                    
+                    <!-- Row 1: Weight & Toggle (Improved Layout) -->
+                    <div class="space-y-2">
+                        <label for="weight" class="text-akros-fg text-sm font-mono block">WEIGHT</label>
+                        <div class="flex space-x-2">
+                            <input type="number" id="weight" class="macro-input" value="80" required>
+                            <div class="unit-switch flex flex-shrink-0">
+                                <button type="button" id="weight-unit-kg" class="active">KG</button>
+                                <button type="button" id="weight-unit-lb">LB</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 2: Height & Toggle (Improved Layout) -->
+                    <div class="space-y-2">
+                        <label id="height-label" for="height-cm" class="text-akros-fg text-sm font-mono block">HEIGHT (CM)</label>
+                        <div class="flex space-x-2">
+                            <!-- CM Input (Default visible) -->
+                            <input type="number" id="height-cm" class="macro-input w-full" value="180" required>
+                            
+                            <!-- Imperial Inputs (Hidden by default) -->
+                            <div class="flex space-x-2 absolute w-2/3 hidden" id="height-imperial-group">
+                                <input type="number" id="height-ft" class="macro-input w-1/2" value="5" placeholder="FT" required>
+                                <input type="number" id="height-in" class="macro-input w-1/2" value="11" placeholder="IN" required>
+                            </div>
+
+                            <div class="unit-switch flex flex-shrink-0">
+                                <button type="button" id="height-unit-cm" class="active">CM</button>
+                                <button type="button" id="height-unit-imp">FT/IN</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 & 4: Age, Gender, Activity, Goal -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative">
+                            <label for="age" class="text-akros-fg text-sm font-mono block mb-1">AGE</label>
+                            <input type="number" id="age" class="macro-input w-full" value="30" required>
+                        </div>
+                        <div class="relative">
+                            <label for="gender" class="text-akros-fg text-sm font-mono block mb-1">GENDER</label>
+                            <select id="gender" class="macro-input w-full" required>
+                                <option value="male">MALE</option>
+                                <option value="female">FEMALE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="relative">
+                            <label for="activity" class="text-akros-fg text-sm font-mono block mb-1">ACTIVITY LEVEL</label>
+                            <select id="activity" class="macro-input w-full" required>
+                                <option value="1.55">3-5 days/wk (Moderate)</option>
+                                <option value="1.725">6-7 days/wk (Very Active)</option>
+                                <option value="1.9">Daily/2x sessions (Extreme)</option>
+                                <option value="1.375">1-3 days/wk (Light)</option>
+                                <option value="1.2">Sedentary</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <label for="goal" class="text-akros-fg text-sm font-mono block mb-1">GOAL</label>
+                            <select id="goal" class="macro-input w-full" required>
+                                <option value="cut">CUT (FAT LOSS)</option>
+                                <option value="bulk">BULK (MUSCLE GAIN)</option>
+                                <option value="maintain">MAINTAIN (RECOMP)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="akros-btn w-full mt-8 text-xl uppercase">CALCULATE THE DOSE</button>
+                </form>
+
+                <!-- Results Output -->
+                <div id="results-output" class="hidden border-2 border-akros-accent p-4">
+                    <h3 class="text-center text-3xl font-heading text-akros-fg mb-4 uppercase border-b border-akros-accent pb-2">
+                        Prescription Issued:
+                    </h3>
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="macro-result-box">
+                            <div class="macro-value" id="res-calories">0</div>
+                            <div class="text-akros-fg text-sm uppercase font-heading">KCAL</div>
+                        </div>
+                        <div class="macro-result-box">
+                            <div class="macro-value" id="res-protein">0</div>
+                            <div class="text-akros-fg text-sm uppercase font-heading">Protein (g)</div>
+                        </div>
+                        <div class="macro-result-box">
+                            <div class="macro-value" id="res-carbs">0</div>
+                            <div class="text-akros-fg text-sm uppercase font-heading">Carbs (g)</div>
+                        </div>
+                        <div class="macro-result-box">
+                            <div class="macro-value" id="res-fat">0</div>
+                            <div class="text-akros-fg text-sm uppercase font-heading">Fat (g)</div>
+                        </div>
+                    </div>
+                    <p class="text-center text-akros-accent mt-4 text-sm font-mono">
+                        // MACRO SPLIT: 40% P / 40% C / 20% F (AGGRESSIVE LIFTING PROTOCOL)
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. FOOTER -->
+        <footer class="py-6 text-xs border-t border-akros-secondary border-opacity-50">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center text-akros-secondary">
+                <div class="mb-2 md:mb-0">
+                    © Akros
+                </div>
+                <div id="footer_links" class="flex space-x-6 mb-2 md:mb-0">
+                    <a href="#" class="hover:text-akros-fg transition">Privacy</a>
+                    <a href="#" class="hover:text-akros-fg transition">Terms</a>
+                </div>
+                <div class="text-akros-accent font-mono opacity-50">
+                    BUILT WITH DISCIPLINE.
+                </div>
+            </div>
+        </footer>
+
+    </main>
+    
+    <script>
+        // === GLOBAL JS UTILITIES ===
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // --- SCROLL PROGRESS BAR ---
+        function updateScrollProgress() {
+            const progress = document.getElementById('scroll-progress');
+            if (progress && !prefersReducedMotion) {
+                const totalHeight = document.body.scrollHeight - window.innerHeight;
+                const scrollPosition = window.scrollY;
+                const percentage = (scrollPosition / totalHeight) * 100;
+                progress.style.width = percentage + '%';
+            }
+        }
+        window.addEventListener('scroll', updateScrollProgress);
+        
+        // --- MANIFESTO SCROLL LOGIC ---
+        const MANIFESTO = {
+            lines: document.querySelectorAll('.manifesto-line'),
+            dotsContainer: document.getElementById('manifesto-progress'),
+            scrollTarget: document.getElementById('manifesto-scroll-target'),
+            container: document.getElementById('manifesto-hero'),
+            finalCtaContainer: document.getElementById('final-cta-container'),
+            stepHeight: window.innerHeight,
+            numSteps: 9,
+
+            init: function() {
+                if (!this.lines.length || prefersReducedMotion) return this.fallback();
+                
+                this.generateDots();
+                window.addEventListener('scroll', this.checkScroll.bind(this));
+                window.addEventListener('resize', this.resize.bind(this));
+                this.resize(); 
+                this.checkScroll();
+            },
+            
+            fallback: function() {
+                // Simplified fallack for reduced motion or non-JS environments
+                this.container.style.height = 'auto';
+                this.scrollTarget.style.height = 'auto';
+                this.lines.forEach(line => {
+                    line.style.position = 'relative';
+                    line.classList.add('active');
+                });
+                this.dotsContainer.remove();
+            },
+
+            resize: function() {
+                this.stepHeight = window.innerHeight;
+                this.scrollTarget.style.height = (this.numSteps * this.stepHeight) + 'px';
+            },
+
+            generateDots: function() {
+                for (let i = 1; i <= this.numSteps; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('progress-dot');
+                    dot.dataset.dot = i;
+                    this.dotsContainer.appendChild(dot);
+                }
+            },
+
+            checkScroll: function() {
+                // Calculate current step based on scroll position within the manifesto section
+                const manifestoTop = this.container.offsetTop;
+                const scrollY = window.scrollY;
+                
+                // Calculate which step the user is currently in (0-based)
+                const relativeScroll = scrollY - manifestoTop;
+                const currentStepIndex = Math.floor(relativeScroll / this.stepHeight);
+                const currentStep = Math.min(Math.max(1, currentStepIndex + 1), this.numSteps);
+
+                this.updateUI(currentStep);
+            },
+
+            updateUI: function(step) {
+                // Update Lines (Make only the current line active)
+                this.lines.forEach(line => {
+                    const lineStep = parseInt(line.dataset.step);
+                    // Fade in if the line has been scrolled past, but keep it centered
+                    if (lineStep === step) {
+                        line.classList.add('active');
+                        line.style.position = 'fixed';
+                        line.style.top = '0';
+                    } else {
+                        line.classList.remove('active');
+                        line.style.position = 'absolute'; // Keep non-active lines out of view flow
+                        line.style.top = `${(lineStep - 1) * this.stepHeight}px`; 
+                    }
+                });
+
+                // Update Dots
+                this.dotsContainer.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotStep = parseInt(dot.dataset.dot);
+                    if (dotStep === step) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+
+                // Control Final CTA Visibility
+                if (step >= this.numSteps) {
+                     this.finalCtaContainer.style.opacity = '1';
+                } else {
+                     this.finalCtaContainer.style.opacity = '0';
+                }
+            }
+        };
+
+        // --- ICON INTERACTIVITY LOGIC (Retained for the Engine section) ---
+        function setupIconInteractivity() {
+            const featureList = document.getElementById('the-engine'); 
+            const iconContainers = featureList ? featureList.querySelectorAll('div[class*="group"]') : [];
+            
+            if (featureList && iconContainers.length > 0 && !prefersReducedMotion) {
+                featureList.addEventListener('mousemove', (e) => {
+                    iconContainers.forEach(container => {
+                        const rect = container.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+
+                        const moveX = (e.clientX - centerX) / 15; 
+                        const moveY = (e.clientY - centerY) / 15;
+
+                        container.style.transform = `translate3d(${-moveX}px, ${-moveY}px, 0)`;
+                    });
+                });
+
+                featureList.addEventListener('mouseleave', () => {
+                    iconContainers.forEach(container => {
+                        container.style.transform = 'translate3d(0, 0, 0)';
+                    });
+                });
+            }
+        }
+        
+        // === TESTIMONIAL TYPEWRITER EFFECT ===
+        function typewriterEffect(element, text, delay = 50) {
+            if (prefersReducedMotion) {
+                element.textContent = text;
+                return;
+            }
+            element.textContent = ''; 
+            let i = 0;
+            const timer = setInterval(() => {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(timer);
+                }
+            }, delay);
+        }
+
+        function initTestimonialTypewriter() {
+            const quotes = document.querySelectorAll('.testimonial-quote');
+            
+            const quoteObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && entry.target.dataset.revealed !== 'true') {
+                        const quoteElement = entry.target;
+                        const quoteText = quoteElement.dataset.quote;
+                        
+                        const delay = 50 + Math.random() * 20; 
+                        typewriterEffect(quoteElement, `"${quoteText}"`, delay);
+                        quoteElement.dataset.revealed = 'true';
+                        quoteObserver.unobserve(quoteElement);
+                    }
+                });
+            }, { threshold: 0.8 });
+
+            quotes.forEach(quote => {
+                quote.textContent = '...ACCESSING_DATA'; 
+                quote.dataset.revealed = 'false';
+                quoteObserver.observe(quote);
+            });
+        }
+        // ===================================
+
+
+        // === MACRO CALCULATOR LOGIC & UNIT TOGGLES ===
+        const macroForm = document.getElementById('macro-calculator');
+        const resultsOutput = document.getElementById('results-output');
+        const weightInput = document.getElementById('weight');
+        const heightCmInput = document.getElementById('height-cm');
+        const heightFtInput = document.getElementById('height-ft');
+        const heightInInput = document.getElementById('height-in');
+        
+        // Toggle Elements
+        const weightUnitKgBtn = document.getElementById('weight-unit-kg');
+        const weightUnitLbBtn = document.getElementById('weight-unit-lb');
+        const heightUnitCmBtn = document.getElementById('height-unit-cm');
+        const heightUnitImpBtn = document.getElementById('height-unit-imp');
+        const heightLabel = document.getElementById('height-label');
+
+        const heightImperialGroup = document.getElementById('height-imperial-group');
+        const statusText = document.getElementById('status-text');
+
+        let isMetric = true; 
+
+        // --- CONVERSION UTILS ---
+        const CONV_LB_TO_KG = 0.453592;
+        const CONV_IN_TO_CM = 2.54;
+
+        function convertCmToImperial(cm) {
+            const totalInches = cm / CONV_IN_TO_CM;
+            const feet = Math.floor(totalInches / 12);
+            const inches = Math.round(totalInches % 12);
+            return { feet, inches };
+        }
+
+        function convertImperialToCm(feet, inches) {
+            const totalInches = (feet * 12) + inches;
+            return totalInches * CONV_IN_TO_CM;
+        }
+
+        // --- UNIT TOGGLE HANDLERS ---
+        function updateWeightToggle(toKg) {
+            if (isMetric !== toKg) {
+                isMetric = toKg;
+                const value = parseFloat(weightInput.value) || 0;
+                
+                if (isMetric) {
+                    weightInput.value = Math.round(value * CONV_LB_TO_KG);
+                    weightUnitKgBtn.classList.add('active');
+                    weightUnitLbBtn.classList.remove('active');
+                } else {
+                    weightInput.value = Math.round(value / CONV_LB_TO_KG);
+                    weightUnitLbBtn.classList.add('active');
+                    weightUnitKgBtn.classList.remove('active');
+                }
+            }
+        }
+
+        function updateHeightToggle(toCm) {
+            const isCm = heightUnitCmBtn.classList.contains('active');
+
+            if (toCm && !isCm) {
+                heightUnitCmBtn.classList.add('active');
+                heightUnitImpBtn.classList.remove('active');
+                heightCmInput.classList.remove('hidden');
+                heightImperialGroup.classList.add('hidden');
+                heightLabel.textContent = 'HEIGHT (CM)';
+
+                const cmValue = parseFloat(heightCmInput.value);
+                if (!isNaN(cmValue)) {
+                    const { feet, inches } = convertCmToImperial(cmValue);
+                    heightFtInput.value = feet;
+                    heightInInput.value = inches;
+                }
+            } else if (!toCm && isCm) {
+                heightUnitImpBtn.classList.add('active');
+                heightUnitCmBtn.classList.remove('active');
+                heightCmInput.classList.add('hidden');
+                heightImperialGroup.classList.remove('hidden');
+                heightLabel.textContent = 'HEIGHT (FT/IN)';
+
+                const ft = parseFloat(heightFtInput.value) || 0;
+                const inches = parseFloat(heightInInput.value) || 0;
+                heightCmInput.value = Math.round(convertImperialToCm(ft, inches));
+            }
+        }
+        
+        function initializeUnitToggles() {
+            // Set initial visibility states based on Metric default
+            heightCmInput.classList.remove('hidden');
+            heightImperialGroup.classList.add('hidden');
+
+            // Apply active class to default buttons
+            weightUnitKgBtn.classList.add('active');
+            heightUnitCmBtn.classList.add('active');
+            
+            // Event Listeners
+            weightUnitKgBtn.addEventListener('click', () => updateWeightToggle(true));
+            weightUnitLbBtn.addEventListener('click', () => updateWeightToggle(false));
+            heightUnitCmBtn.addEventListener('click', () => updateHeightToggle(true));
+            heightUnitImpBtn.addEventListener('click', () => updateHeightToggle(false));
+        }
+
+        // --- MAIN CALCULATION ---
+        macroForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateMacros();
+        });
+
+        function calculateMacros() {
+            statusText.textContent = 'PROCESSING...';
+            // Start Lottie animation
+            document.getElementById('lottie-data-flow').play();
+
+            // Simulate data processing delay (for UX)
+            setTimeout(() => {
+                try {
+                    const A = parseInt(document.getElementById('age').value);
+                    const G = document.getElementById('gender').value;
+                    const activityMultiplier = parseFloat(document.getElementById('activity').value);
+                    const goal = document.getElementById('goal').value;
+
+                    let W_KG = parseFloat(weightInput.value);
+                    if (!isMetric) { W_KG = W_KG * CONV_LB_TO_KG; }
+
+                    let H_CM;
+                    const usingCm = heightUnitCmBtn.classList.contains('active');
+                    if (usingCm) {
+                        H_CM = parseFloat(heightCmInput.value);
+                    } else {
+                        const ft = parseFloat(heightFtInput.value) || 0;
+                        const inches = parseFloat(heightInInput.value) || 0;
+                        H_CM = convertImperialToCm(ft, inches);
+                    }
+
+                    if (isNaN(W_KG) || isNaN(H_CM) || isNaN(A) || W_KG <= 0 || H_CM <= 0) {
+                        statusText.textContent = 'ERROR: INVALID DATA';
+                        document.getElementById('lottie-data-flow').stop();
+                        return;
+                    }
+
+                    // 2. Calculate BMR (Mifflin-St Jeor Metric)
+                    let BMR = (G === 'male') 
+                        ? (10 * W_KG) + (6.25 * H_CM) - (5 * A) + 5
+                        : (10 * W_KG) + (6.25 * H_CM) - (5 * A) - 161;
+
+                    let TDEE = BMR * activityMultiplier;
+                    
+                    let targetCalories = TDEE;
+                    if (goal === 'cut') { targetCalories = TDEE - 500; } 
+                    else if (goal === 'bulk') { targetCalories = TDEE + 300; }
+                    
+                    if (targetCalories < 1200) targetCalories = 1200;
+
+                    // 5. Calculate Macros (40% P, 40% C, 20% F)
+                    const proteinGrams = Math.round((targetCalories * 0.40) / 4);
+                    const carbGrams = Math.round((targetCalories * 0.40) / 4);
+                    const fatGrams = Math.round((targetCalories * 0.20) / 9);
+
+                    // 6. Display Results
+                    document.getElementById('res-calories').textContent = Math.round(targetCalories);
+                    document.getElementById('res-protein').textContent = proteinGrams;
+                    document.getElementById('res-carbs').textContent = carbGrams;
+                    document.getElementById('res-fat').textContent = fatGrams;
+                    
+                    resultsOutput.classList.remove('hidden');
+                    statusText.textContent = 'PRESCRIPTION ISSUED';
+                    document.getElementById('lottie-data-flow').stop();
+                    
+                    resultsOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                } catch (error) {
+                    console.error("Calculation Error:", error);
+                    statusText.textContent = 'ERROR: RECALIBRATE';
+                    document.getElementById('lottie-data-flow').stop();
+                }
+            }, 800); 
+        }
+
+        // === AURORA RIBBON CANVAS ANIMATION SCRIPT (RESTORED & RE-COLORED) ===
+        const AURORA = {
+            init: function() {
+                this.canvas = document.getElementById('interactive-background');
+                this.primaryCTA = document.getElementById('cta_primary');
+                this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+
+                if (!this.canvas || !this.ctx) return;
+                
+                this.mouse = { x: null, y: null };
+                this.time = 0;
+                this.currentBlurMultiplier = 1; 
+                this.globalSpeed = 0.0001; // Slower speed
+                this.waveAmplitude = 15;
+                this.mouseEffectRadius = 300;
+                this.mouseEffectStrength = 20;
+                this.baseRadius = 300; 
+                this.FADE_COLOR = 'rgba(0, 0, 0, 0.1)'; 
+                this.numPoints = 120;
+                this.ribbons = [];
+                
+                // NEW BLUE/GREY PALETTE
+                this.auroraColors = [
+                    { color: 'rgba(0, 194, 255, 0.25)', blur: 15 }, 
+                    { color: 'rgba(0, 194, 255, 0.15)', blur: 10 }, 
+                    { color: 'rgba(45, 45, 45, 0.10)', blur: 8 },    
+                    { color: 'rgba(255, 255, 255, 0.08)', blur: 6 }, 
+                    { color: 'rgba(0, 194, 255, 0.12)', blur: 9 }, 
+                    { color: 'rgba(45, 45, 45, 0.07)', blur: 5 }, 
+                    { color: 'rgba(0, 194, 255, 0.18)', blur: 11 }, 
+                    { color: 'rgba(0, 0, 0, 0.05)', blur: 3 }
+                ];
+
+                this.setupEvents();
+                this.resizeCanvas(); 
+                this.animate();
+            },
+
+            setupEvents: function() {
+                window.addEventListener('resize', this.resizeCanvas.bind(this));
+                window.addEventListener('mousemove', this.updateMousePosition.bind(this));
+                window.addEventListener('touchmove', this.updateMousePosition.bind(this));
+                window.addEventListener('mouseleave', () => { this.mouse.x = null; this.mouse.y = null; });
+                
+                if (this.primaryCTA && !prefersReducedMotion) {
+                    this.primaryCTA.addEventListener('mouseenter', () => {
+                        this.currentBlurMultiplier = 2.5; 
+                    });
+                    this.primaryCTA.addEventListener('mouseleave', () => {
+                        this.currentBlurMultiplier = 1; 
+                    });
+                }
+            },
+
+            resizeCanvas: function() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.initRibbons();
+            },
+
+            initRibbons: function() {
+                this.ribbons = [];
+                const numRibbons = this.auroraColors.length;
+
+                for (let i = 0; i < numRibbons; i++) {
+                    const radiusMultiplier = 1 + (i * 0.03); 
+                    const phaseOffset = i * (Math.PI / 4); 
+                    
+                    const points = [];
+                    for (let j = 0; j < this.numPoints; j++) {
+                        points.push({ angle: (j / this.numPoints) * Math.PI * 2 });
+                    }
+                    
+                    this.ribbons.push({
+                        points: points,
+                        radius: this.baseRadius * radiusMultiplier,
+                        phase: phaseOffset,
+                        color: this.auroraColors[i].color,
+                        blur: this.auroraColors[i].blur
+                    });
+                }
+            },
+
+            updateMousePosition: function(event) {
+                 if (event.touches && event.touches.length > 0) {
+                    this.mouse.x = event.touches[0].clientX;
+                    this.mouse.y = event.touches[0].clientY;
+                } else if (event.clientX !== undefined) {
+                    this.mouse.x = event.clientX;
+                    this.mouse.y = event.clientY;
+                }
+            },
+
+            drawAuroraRibbon: function() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+
+                this.ribbons.forEach(ribbon => {
+                    
+                    const calculatedPoints = ribbon.points.map(p => {
+                        const wave = Math.sin(p.angle * 4 + this.time * this.globalSpeed * 150 + ribbon.phase) * (this.waveAmplitude + Math.random() * 5);
+                        const breath = Math.sin(p.angle * 2 + this.time * this.globalSpeed * 100 + ribbon.phase / 2) * (this.waveAmplitude / 3);
+                        
+                        let radius = ribbon.radius + wave + breath;
+
+                        const rotation = Math.sin(this.time * this.globalSpeed * 75);
+                        const currentAngle = p.angle + rotation * 0.1;
+
+                        let pointX = centerX + Math.cos(currentAngle) * radius;
+                        let pointY = centerY + Math.sin(currentAngle) * radius;
+                        
+                        let dx = this.mouse.x - pointX;
+                        let dy = this.mouse.y - pointY;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < this.mouseEffectRadius && this.mouse.x !== null) {
+                            const strength = (1 - distance / this.mouseEffectRadius) * this.mouseEffectStrength;
+                            radius += strength * Math.sin(this.time * 0.02 + Math.random() * 0.5); 
+                        }
+
+                        return {
+                            x: centerX + Math.cos(currentAngle) * radius,
+                            y: centerY + Math.sin(currentAngle) * radius
+                        };
+                    });
+                    
+                    this.ctx.beginPath();
+                    
+                    this.ctx.shadowBlur = ribbon.blur * this.currentBlurMultiplier;
+                    this.ctx.shadowColor = ribbon.color;
+                    this.ctx.strokeStyle = ribbon.color;
+                    this.ctx.lineWidth = 2.5; 
+
+                    let p1 = calculatedPoints[calculatedPoints.length - 1]; 
+                    this.ctx.moveTo(p1.x, p1.y);
+
+                    calculatedPoints.forEach(p => {
+                        this.ctx.lineTo(p.x, p.y);
+                    });
+                    
+                    this.ctx.closePath(); 
+                    this.ctx.stroke();
+                    
+                    this.ctx.shadowBlur = 0;
+                });
+            },
+
+            animate: function() {
+                try {
+                    requestAnimationFrame(this.animate.bind(this));
+                    this.ctx.fillStyle = this.FADE_COLOR; 
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); 
+
+                    this.time++; 
+                    this.drawAuroraRibbon();
+                    
+                } catch (e) {
+                    console.error("Aurora Ribbon Animation error:", e);
+                }
+            }
+        };
+
+
+        window.onload = function() {
+            // --- MANIFESTO INIT ---
+            MANIFESTO.init();
+
+            // --- INIT CALLS ---
+            initializeUnitToggles();
+            setupIconInteractivity();
+            updateScrollProgress(); 
+            initTestimonialTypewriter(); 
+            
+            AURORA.init(); // Initialize the restored Aurora animation
+
+            // Set Lottie source path immediately on load
+            document.getElementById('lottie-data-flow').setAttribute('src', 'https://assets5.lottiefiles.com/packages/lf20_l4h7y37u.json');
+        };
+    </script>
